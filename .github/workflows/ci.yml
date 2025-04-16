@@ -1,41 +1,53 @@
-name: CI Pipeline
+name: CI Pipeline com Deploy no GitHub Pages 🚀
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  build:
-    name: 1 - Verificar HTML/CSS/JS
+  check:
+    name: 1️⃣ Verificar arquivos no repositório
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
-
-      - name: Verificar arquivos
+      - name: Mostrar arquivos
         run: |
-          echo "Arquivos no repositório:"
+          echo "📁 Conteúdo atual do repositório:"
           ls -la
 
   lint:
-    name: 2 - Lint no JavaScript
+    name: 2️⃣ Lint no JavaScript
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
-      - name: Instalar ESLint
+      - name: Instalar dependências
         run: npm install eslint --save-dev
-      - name: Criar arquivo de config
+      - name: Criar configuração básica do ESLint
         run: npx eslint --init --no-eslintrc --env browser
       - name: Rodar ESLint
         run: npx eslint script.js || true
 
   deploy:
-    name: 3 - Simular Deploy
+    name: 3️⃣ Publicar no GitHub Pages
     runs-on: ubuntu-latest
-    needs: [build, lint]
+    needs: [check, lint]
+
     steps:
-      - name: Simulando deploy
-        run: echo "Deploy bem-sucedido!"
+      - uses: actions/checkout@v3
+
+      - name: 🔧 Gerar diretório de build (simulado)
+        run: |
+          mkdir dist
+          cp index.html dist/
+          cp style.css dist/
+          cp script.js dist/
+
+      - name: 📦 Publicar no GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
