@@ -5,6 +5,16 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   check:
@@ -32,22 +42,21 @@ jobs:
         run: npx eslint script.js || true
 
   deploy:
-    name: 3️⃣ Publicar no GitHub Pages
-    runs-on: ubuntu-latest
+    name: 3️⃣ Publicar o HTML estático
     needs: [check, lint]
-
+     environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: 🔧 Gerar diretório de build (simulado)
-        run: |
-          mkdir dist
-          cp index.html dist/
-          cp style.css dist/
-          cp script.js dist/
-
-      - name: 📦 Publicar no GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
