@@ -1,0 +1,41 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: 1 - Verificar HTML/CSS/JS
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Verificar arquivos
+        run: |
+          echo "Arquivos no repositório:"
+          ls -la
+
+  lint:
+    name: 2 - Lint no JavaScript
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Instalar ESLint
+        run: npm install eslint --save-dev
+      - name: Criar arquivo de config
+        run: npx eslint --init --no-eslintrc --env browser
+      - name: Rodar ESLint
+        run: npx eslint script.js || true
+
+  deploy:
+    name: 3 - Simular Deploy
+    runs-on: ubuntu-latest
+    needs: [build, lint]
+    steps:
+      - name: Simulando deploy
+        run: echo "Deploy bem-sucedido!"
